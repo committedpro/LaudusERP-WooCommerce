@@ -3,7 +3,7 @@
 Plugin Name: Laudus
 Plugin URI: https://www.laudus.cl/descargas/wooCommerce.php
 Description: Permite conectar su tienda con Laudus ERP.
-Version: 2.0.0
+Version: 2.1.0
 Author: Laudus
 Author URI: https://www.laudus.cl
 License: GPL2
@@ -31,7 +31,7 @@ define('LAUDUS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 $laudus_invoice_generate_url = get_site_url().'?page=laudus_invoice_generate';
 $laudus_invoice_generate_url = get_site_url().'?page=laudus_invoice_generate';
 $laudus_invoice_allow_statuses = ['completed'];
-$laudus_latest_schema_version = '1.1.8';
+$laudus_latest_schema_version = '2.1.0';
 $pdfGenerateErrorMessage = 'Invoice PDF not ready for this order right now. It will be available once order is delivered from Laudus ERP.';
 
 if (isset($_GET['page']) && $_GET['page']=='laudus_invoice_generate') {
@@ -115,7 +115,7 @@ function laudus_initDesc_page() {
     $current_version = get_option('laudus_current_schema_version', '1.1.6');
 	?>
 	<div>
-	<?php screen_icon(); ?>
+
             <h2>LaudusERP wooCommerce plugin (v.<span id="laudus_latest_version"><?php echo $current_version?></span>)</h2>	
 	<p>Comunique y sincronice informaci&oacute;n entre su tienda y el software Laudus ERP</p>
 	<p>En el men&uacute; Acceso API podr&aacute; definir y verificar los datos de acceso a su empresa utilizando la API de Laudus ERP</p>
@@ -173,7 +173,7 @@ function laudus_stockSync_page() {
 
 	?>
 		<div>
-			<?php screen_icon(); ?>
+			
 			<form method="post">
 				<h3>ACTUALIZAR STOCKS</h3>
 				<p>Actualiza el stock de todos los productos con el stock existente en su ERP</p>
@@ -191,12 +191,12 @@ function laudus_payments_page() {
         $loProcessResult = null;
         $statusMessage = 'Configuraci&oacute;n de formas de pago no establecida';
     	if (isset($_POST['consolidatedTerms'])) {
-	        $lcTerms = $_POST['consolidatedTerms'];
+	    $lcTerms = $_POST['consolidatedTerms'];
             $lcTerms = str_replace('\\', '', $_POST['consolidatedTerms']);
-    		if (update_option('laudus_terms_map', $lcTerms)) {
+            if (update_option('laudus_terms_map', $lcTerms)) {
                 $lcClass = 'updated';
                 $statusMessage = 'Configuraci&oacute;n de formas de pago establecida correctamente';  
-    		}
+            }
     	}
         echo '<div class="'.$lcClass.'"><p>'.$statusMessage.'</p></div>';
     }
@@ -207,7 +207,7 @@ function laudus_payments_page() {
 
 	?>
 		<div>
-			<?php screen_icon(); ?>
+			
 			<form method="post" onsubmit="return composeMetaTerms();">
 				<h3>CONFIGURAR FORMAS DE PAGO</h3>
 				<p id="dev">Establezca la correspondencia entre las formas de pago de su tienda y las establecidas en Laudus ERP</p>
@@ -310,7 +310,7 @@ function laudus_payments_page() {
 function laudus_stocks_page() {
 	?>
 		<div>
-			<?php screen_icon(); ?>
+			
 				<h3>Informaci&oacute;n de Stocks</h3>
                                 <p id="dev">
                                     <a id="updateAllStocksFromERP" href="javascript:void(0)" onclick="updateAllStocksFromERP()" class="btn-primary btn-default btn button" style="font-size: 16px;">PULSE AQU&Iacute; PARA SINCRONIZAR TODOS LOS STOCKS</a>
@@ -328,12 +328,12 @@ function laudus_stocks_page() {
         <script type="text/javascript">
             jQuery(document).ready(function(){
                 var ajaxUrl = location.href;
-				var timestamp = jQuery.now();
-				ajaxUrl += '&getProductStockListAjax=1&timestamp='+timestamp;
+                var timestamp = jQuery.now();
+                ajaxUrl += '&getProductStockListAjax=1&timestamp='+timestamp;
 
-				jQuery.get(ajaxUrl, function( data ) {
-					jQuery("#stocks_container").html(data);
-				});
+                jQuery.get(ajaxUrl, function( data ) {
+                        jQuery("#stocks_container").html(data);
+                });
             });
             
             function customSearchLaudus(object) 
@@ -510,7 +510,7 @@ function laudus_stocks_page() {
 function laudus_prices_page() {
 	?>
 		<div>
-			<?php screen_icon(); ?>
+			
 				<h3>Informaci&oacute;n de Precios</h3>
                                 <p id="dev">
                                     <a id="updateAllPricesFromERP" href="javascript:void(0)" onclick="updateAllPricesFromERP()" class="btn-primary btn-default btn button" style="font-size: 16px;">PULSE AQU&Iacute; PARA SINCRONIZAR TODOS LOS PRECIOS</a>
@@ -712,7 +712,7 @@ function laudus_prices_page() {
 function laudus_productsnotinerp_page() {
 	?>
 		<div>
-			<?php screen_icon(); ?>
+			
 				<h3>Productos no en Laudus</h3>
 				<p id="dev">A continuaci&oacute;n se muestran los productos que si est&aacute;nn en su tienda de Prestashop pero no est&aacute;n en Laudus ERP, recuerde que la b&uacute;squeda se hace seg&uacute;n la referencia de Wordpress.</p>
                 <div class="form-group" id="mainStoreTerm" style="margin-top: 30px;"></div>
@@ -772,7 +772,7 @@ function laudus_options_page() {
 		</script>
 
 		<div>
-			<?php screen_icon(); ?>
+			
 			<form method="post">
                 <input type="hidden" name="updated" value="true" />
 				<?php settings_fields( 'laudus_options_group' ); ?>
@@ -852,9 +852,10 @@ function laudus_options_page() {
 function get_active_payment_gateways() {
     $payment_methods = array();
     $gateways        = WC()->payment_gateways->payment_gateways();
+
     foreach ( $gateways as $id => $gateway ) {
-        if ( isset( $gateway->enabled ) && 'yes' === $gateway->enabled ) {
-            $thisMethod = null;
+        if ( isset( $gateway->enabled ) && 'yes' === $gateway->enabled) {
+            $thisMethod = new \stdClass();
             $thisMethod -> displayName = $gateway->title; 
             $thisMethod -> idTerm = $id;
             $payment_methods[] = $thisMethod;            
@@ -869,7 +870,7 @@ function getLaudusTerms() {
     $respond = '';
     $lcReturn = '[]';
 
-	$lcToken = getTokenAPI();
+    $lcToken = getNewAPIToken();
     if ($lcToken == 'voidMainData') {
         return $lcReturn; 
     }    
@@ -877,33 +878,66 @@ function getLaudusTerms() {
         $lcMessage = substr($lcToken, 2);
         return $lcReturn;
     }
-
-    $connection = curl_init('https://erp.laudus.cl/api/terms/get/list');
+    
+    $data['fields'] = ['termId', 'name'];
+    $lcBodyJson = json_encode($data);
+    $connection = curl_init('https://api.laudus.cl/sales/terms/list');
     curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
-    curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "GET");                                                                     
+    curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "POST");    
+    curl_setopt($connection, CURLOPT_POSTFIELDS, $lcBodyJson);
     curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);                                                                      
     curl_setopt($connection, CURLOPT_HTTPHEADER, array(                                                                          
-        'Content-Type: application/json',
         'Accept: application/json',
-        'token: '.$lcToken)      
+        'Content-Type: application/json',  
+        'Authorization: '.$lcToken)
     );                                                                                                                   
 
     $respond = curl_exec($connection);
     if (strlen($respond) > 0) {
         $loJsonTerms = json_decode($respond);
-        if (isset($loJsonTerms->{'errorMessage'})) {
-            $lnErrorNumber = $loJsonTerms->{'errorNumber'};
-            if ($lnErrorNumber >= 1001 || $lnErrorNumber <=1002) {
-            }
-			else {
-			} 
-        } 
-        else {
+  
+        if (isset($loJsonTerms->{'type'}) && $loJsonTerms->{'type'} == 'error') {
+            $errorMessage  = $loJsonTerms->{'message'};
+            echo $errorMessage; exit;
+        } else {
             $lcReturn = $respond;
         }
     }
     
     return $lcReturn;
+}
+
+function getLaudusTermName($id) {
+    $name = 'unknown';
+    $realLaudusTerms = get_option('laudus_real_terms');
+    
+    if (!$realLaudusTerms) {
+        $realLaudusTerms = getLaudusTerms();
+        update_option('laudus_real_terms', $realLaudusTerms);
+    }
+    
+    $terms = json_decode($realLaudusTerms, true);
+    foreach ($terms as $term) {
+         if ($term['termId'] == $id) {
+            $name = $term['name'];
+        }
+    }
+    
+    return $name;
+}
+
+function getLaudusMappedCurrencyCode($code) {
+    $currency = 'UF';
+    
+    if ($code == 'USD' || $code == 'US$') {
+        $currency = 'US$';
+    } else if ($code == 'EUR' || $code == 'EURO') {
+        $currency = 'EURO';
+    } else if ($code == 'CLP') {
+        $currency = 'CLP';
+    }
+    
+    return $currency;
 }
 
 function action_woocommerce_thankyou($order_id) { 
@@ -912,7 +946,7 @@ function action_woocommerce_thankyou($order_id) {
         return '';
     }    
 
-	$order = wc_get_order($order_id);
+    $order = wc_get_order($order_id);
     $lcStatus = $order ->get_status();
     if (strtolower($lcStatus) == 'canceled' || strtolower($lcStatus) == 'failed' || strtolower($lcStatus) == 'refunded') {
         return '';
@@ -925,23 +959,26 @@ function action_woocommerce_thankyou($order_id) {
         $llShopHasTaxes = false;
     }
 
-	$objDateTime = new DateTime('NOW');
-	$ldFecha = $objDateTime->format('Y-m-d H:i:s'); 
-	$ldFecha = substr($ldFecha, 0, 10).'T'.substr($ldFecha, 11).'Z';
+    $objDateTime = new DateTime('NOW');
+    $ldFecha = $objDateTime->format('Y-m-d H:i:s'); 
+    $ldFecha = substr($ldFecha, 0, 10).'T'.substr($ldFecha, 11).'Z';
+    
     $lnOrderId = $order->get_order_number();
-    $lcCurrencyIsoCode = $order->get_currency();    
+    $lcCurrencyIsoCode = getLaudusMappedCurrencyCode($order->get_currency());
     $lnLaudusIdCustomer = 0;
     $totalDiscount = $order->get_discount_total();
     $discountTax = $order->get_discount_tax();
     $lnShipToCost = $order->get_shipping_total();
     $total = $order->get_total(); 
     $total_tax = $order->get_total_tax(); 
+    
     if (is_admin()) {
         $customerId = $order->get_user_id();
     }
     else {
         $customerId = get_current_user_id();  
     }
+    
     $order_key = $order->get_order_key();
     $total_paid = '' ;
     if ($order->get_date_paid() != null) {
@@ -961,6 +998,7 @@ function action_woocommerce_thankyou($order_id) {
     $shipping_city = $order->get_shipping_city();
     $shipping_zipCode = $order->get_shipping_postcode();
     $shipping_country = $order->get_shipping_country();
+
     $term_method = $order->get_payment_method();
     $term_method_desc = $order->get_payment_method_title();
     $lcJsonTermsMap = get_option('laudus_terms_map');
@@ -979,28 +1017,38 @@ function action_woocommerce_thankyou($order_id) {
     
     if (strlen($lcLaudusIdTerm) == 0) {
         $lcLaudusIdTerm = '01';
-    }     
+    }
+    $lcLaudusIdTermName = getLaudusTermName($lcLaudusIdTerm);
 
     $notes = $order->get_customer_note();
-	$items = $order->get_items();
-	$lcThisSku = '';
-	$lnThisPrice = 0;
-	$laItems = array();
-	foreach ( $items as $item => $item_data) {
-	  	$product = $item_data->get_product();
-	    $lcThisName =$product->get_name(); 
-	    $lcThisSku = $product->get_sku();
-	    $lnThisQuantity = $item_data->get_quantity();
-        $thisProduct = new StdClass;
-	    $thisProduct->product_reference = $lcThisSku;
+    
+    $items = $order->get_items();
+    $lcThisSku = '';
+    $lnThisPrice = 0;
+    $laItems = array();
+    foreach ( $items as $item => $item_data) {
+        $product = $item_data->get_product();
+        $lcThisName =$product->get_name(); 
+        $lcThisSku = $product->get_sku();
+        $lnThisQuantity = $item_data->get_quantity();
+        
         $line_total2 = $item_data['total'];
         $quantity2 = $item_data['quantity'];
         $lnThisPrice = $line_total2/$quantity2;
-	    $thisProduct->product_price = $lnThisPrice;
-	    $thisProduct->product_quantity = $lnThisQuantity;
-	    $thisProduct->product_name = $lcThisName;
-	    array_push($laItems, $thisProduct);
-	}	
+        
+        $laItem = [];
+        $laItemProduct = [
+            'sku' => $lcThisSku,
+            'description' => $lcThisName
+        ];
+        $laItem['product'] = $laItemProduct;
+        $laItem['itemDescription'] = $lcThisName;
+        $laItem['quantity'] = $lnThisQuantity;
+        $laItem['unitPrice'] = $lnThisPrice;
+        $laItem['currencyCode'] = $lcCurrencyIsoCode;
+
+        array_push($laItems, $laItem);
+    }	
 
     $lcRUT = '';
     $lcRUT = $order->get_meta('RUT');
@@ -1011,63 +1059,77 @@ function action_woocommerce_thankyou($order_id) {
     }
     else {
     	$loCustomer->name = $billing_name;
-    }     
+    } 
+    $loCustomer->legalName = $loCustomer->name;
     $loCustomer->address = $billing_address;
     $loCustomer->zipCode = $billing_zipCode;
     $loCustomer->city = $billing_city;
     $loCustomer->country = $billing_country;	
-    if (strlen($billing_companyName) == 0) {
-        $loCustomer->billingName = $billing_companyName;
-    }
-    else {
-    	$loCustomer->billingName = $billing_name;
-    }    
 
-    $loCustomer->billingAddress = $loCustomer->address;
-    $loCustomer->billingZipCode = $loCustomer->zipCode;
-    $loCustomer->billingCity = $loCustomer->city;
-    $loCustomer->billingCountry = $loCustomer->country;
-    $loCustomer->activity = 'giro cliente ecomerce';
+    $loCustomer->addressBilling = $loCustomer->address;
+    $loCustomer->zipCodeBilling = $loCustomer->zipCode;
+    $loCustomer->cityBilling = $loCustomer->city;
+    $loCustomer->countryBilling = $loCustomer->country;
+    $loCustomer->activityName = 'giro cliente ecomerce';
     $loCustomer->blocked = false;
     $loCustomer->notes = 'Cliente eCommerce wooCommerce.customerId: '.$customerId;
-    $loCustomer->wc_idCliente_ = $customerId;    
-    $loCustomer->phone = $phone;
+    $loCustomer->phone1 = $phone;
     $loCustomer->email = $email;
-    $loCustomer->vatId = $lcRUT;
-    $loCustomer->country_iso_code2 = $loCustomer->country ;
+    $loCustomer->VATId = $lcRUT;
+
     $lnLaudusIdCustomer = getOrCreateLaudusCustomer($lcRUT, $loCustomer);
-    if (gettype($lnLaudusIdCustomer) == "string") {
-        return $lnLaudusIdCustomer;   
-    }
+    
+    $data = [];
+    
+    $data['sourceOrderId'] = $lnOrderId;
+    
+    $customer = [
+        'customerId' => $lnLaudusIdCustomer,
+        'name' => $loCustomer->name,
+        "legalName" => $loCustomer->legalName,
+        "VATId" => $loCustomer->VATId,
+        "email" => $loCustomer->email
+    ];
+    $data['customer'] = $customer;
+    
+    $term = [
+        "termId" => $lcLaudusIdTerm,
+        "name" => $lcLaudusIdTermName
+    ];
+    $data['term'] = $term;
+    
+    $data['issuedDate'] = $ldFecha;
+    $data['dueDate'] = $ldFecha;
+    $data['locked'] = false;
+    
+    $deliveryAddress = [
+        "description" => "Delivery",
+        "address" => $shipping_address,
+        "city" => $shipping_city,
+        "zipCode" => $shipping_zipCode,
+        "country" => $shipping_country
+    ];
+    $data['deliveryAddress'] = $deliveryAddress;
+    
+    $data['deliveryCost'] = $lnShipToCost;
+    $data['deliveryNotes'] = $notes;
+    
+    $data['source'] = [
+        "code" => "WC",
+        "description" => "WooCommerce"
+    ];
+    
+    $data['notes'] = 'Pedido eCommerce wooCommerce.id: '.$lnOrderId;
+    $data["amountPaid"] = $total;
+    $data["amountPaidCurrencyCode"] = $lcCurrencyIsoCode;
+    $data["customFields"] = [
+        "wc_idPedido_" => $lnOrderId
+    ];
+    $data['items'] = $laItems;
 
-    $loOrderJson = new StdClass;
-	$loOrderJson->date = $ldFecha;
-    $loOrderJson->shopHasTaxes = $llShopHasTaxes;
-	$loOrderJson->customerId = (int)$lnLaudusIdCustomer;
-    $loOrderJson->eShop_idOrder = $lnOrderId;
-    $loOrderJson->currencyISO = $lcCurrencyIsoCode;
-    $loOrderJson->termId = $lcLaudusIdTerm;
-    $loOrderJson->address = new StdClass;
-    $loOrderJson->address->address = $shipping_address;
-    $loOrderJson->address->zipCode = $shipping_zipCode;
-    $loOrderJson->address->city = $shipping_city;
-    $loOrderJson->address->country = $billing_country;
-    $loOrderJson->date = $ldFecha;
-    $loOrderJson->dueDate = $ldFecha;
-    $loOrderJson->archived = false;
-    $loOrderJson->locked = false;
-    $loOrderJson->notes = 'Pedido eCommerce wooCommerce.id: '.$lnOrderId;
-    $loOrderJson->referencia_wc_ = $lnOrderId;
-    $loOrderJson->wc_idPedido_ = $lnOrderId;
-    $loOrderJson->total_paid = $total_paid ;
-    $loOrderJson->shipToCost = $lnShipToCost;
-    $loOrderJson->shiptoNotes = $notes;
-	$loOrderJson->reduction_percent = $discountTax;
-	$loOrderJson->detailLines = $laItems;
-	$loOrderJson->customProductShipment = get_option('laudus_customfieldshipment');
-
-    $lcOrderJson = json_encode($loOrderJson);
-	$lcToken = getTokenAPI();
+    $lcOrderJson = json_encode($data);
+    
+    $lcToken = getNewAPIToken();
     if ($lcToken == 'voidMainData') {
         return ''; 
     }    
@@ -1076,27 +1138,30 @@ function action_woocommerce_thankyou($order_id) {
         return '';
     }
 
-    $connection = curl_init('https://erp.laudus.cl/api/v7/orders/new');
+    $connection = curl_init('https://api.laudus.cl/sales/orders');
     curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
     curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
     curl_setopt($connection, CURLOPT_POSTFIELDS, $lcOrderJson);                                                                  
     curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);                                                                      
     curl_setopt($connection, CURLOPT_HTTPHEADER, array(                                                                          
         'Content-Type: application/json',  
-		'token: '.$lcToken,                                                                              
+	'Authorization: '.$lcToken,                                                                              
         'Content-Length: ' . strlen($lcOrderJson))                                                                       
     );                                  
     $respond = curl_exec($connection);
     $lcError = '';
     if (strlen($respond) > 0) {
         $loJsonOrder = json_decode($respond);
-        if (isset($loJsonOrder->{'orderNumber'})) {
-            $lnOrderLaudusID = $loJsonOrder->{'orderNumber'};
-			return '';
+        //print_r($loJsonOrder);exit;
+        if (isset($loJsonOrder->{'salesOrderId'})) {
+            $lnOrderLaudusID = $loJsonOrder->{'salesOrderId'};
+            $order->add_meta_data('LaudusERP_SalesOrderId', $lnOrderLaudusID);
+            $order->save_meta_data();
+            return '';
         } 
         else {
-            if (isset($loJsonOrder->{'errorMessage'})) {
-                $lcError = $loJsonOrder->{'errorMessage'};
+            if (isset($loJsonOrder->{'message'})) {
+                $lcError = $loJsonOrder->{'message'};
             } 
         }
     }
@@ -1184,48 +1249,51 @@ function getOrCreateLaudusCustomer($tcVatId, $toCustomer) {
     $lnIdCustomer = 0; 
     $respond = '';
     
-	$lcToken = getTokenAPI();
+    $lcToken = getNewAPIToken();
     if ($lcToken == 'voidMainData') {
         return $lnIdCustomer; 
     }    
     if (substr($lcToken, 0, 2) == '-1') {
         $lcMessage = substr($lcToken, 2);
         return $lnIdCustomer;
-    }        
-    $loCustomerProperties = new StdClass;
-    $loCustomerProperties->vatId = $tcVatId;
-    $loCustomerProperties->wc_idCliente_ = $toCustomer->id;
-    $lcCustomerProperties = json_encode($loCustomerProperties);
-    $connection = curl_init('https://erp.laudus.cl/api/customers/get/customerId/byVatId/'.$tcVatId);
+    }
+    
+    $data = [];
+    $data['fields'] = ['customerId'];
+    $data['filterBy'][] = ['field' => 'VATId', 'operator' => '=', 'value' => $tcVatId];
+    $data['filterBy'][] = ['field' => 'email', 'operator' => '=', 'value' => $toCustomer->email];
+    $lcBodyJson = json_encode($data);
+    
+    $connection = curl_init('https://api.laudus.cl/sales/customers/list');
     curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
     curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
-    curl_setopt($connection, CURLOPT_POSTFIELDS, $lcCustomerProperties);                                                                  
+    curl_setopt($connection, CURLOPT_POSTFIELDS, $lcBodyJson);                                                                  
     curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);                                                                      
     curl_setopt($connection, CURLOPT_HTTPHEADER, array(                                                                          
         'Content-Type: application/json',  
-		'token: '.$lcToken,                                                                              
-        'Content-Length: ' . strlen($lcCustomerProperties))                                                                       
+	'Authorization: '.$lcToken,                                                                              
+        'Accept: application/json')                                                                    
     );
 
     $respond = curl_exec($connection);
+  
     if (strlen($respond) > 0) {
         $respond = utf8_encode($respond);
-        $loJsonId = json_decode($respond);
-        if (isset($loJsonId->{'errorMessage'})) {
-            $lnErrorNumber = $loJsonId->{'errorNumber'};
-            if ($lnErrorNumber >= 1001 || $lnErrorNumber <=1002) {
-            }
-			else {
-			} 
+        $loJsonId = json_decode($respond, true);
+        if (isset($loJsonId['message'])) {
+            $lnErrorNumber = $loJsonId['status'];
+            if ($lnErrorNumber == 401) {
+            } else {
+            } 
         } 
         else {
-            $lnIdCustomer = $loJsonId -> {'customerId'};
+            $lnIdCustomer = $loJsonId[0]['customerId'];
         }
     }
-    
+
     if ($lnIdCustomer == 0) {
         $loNewCustomer = $toCustomer;
-		$lcToken = getTokenAPI();
+	$lcToken = getNewAPIToken();
         if ($lcToken == 'voidMainData') {
             return $lnIdCustomer; 
         }    
@@ -1235,33 +1303,32 @@ function getOrCreateLaudusCustomer($tcVatId, $toCustomer) {
         }   
         
         $lcCustomerJson = json_encode($loNewCustomer);
-        $connection = curl_init('https://erp.laudus.cl/api/customers/new');
+        $connection = curl_init('https://api.laudus.cl/sales/customers');
         curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
         curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
         curl_setopt($connection, CURLOPT_POSTFIELDS, $lcCustomerJson);                                                                  
         curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);                                                                      
         curl_setopt($connection, CURLOPT_HTTPHEADER, array(                                                                          
             'Content-Type: application/json',  
-			'token: '.$lcToken,                                                                              
-            'Content-Length: ' . strlen($lcCustomerJson))                                                                       
+            'Authorization: '.$lcToken,                                                                                
+            'Accept: application/json')                                                                     
         );                                  
 		                                                                                 
         $respond = curl_exec($connection);
         if (strlen($respond) > 0) {
             $respond = utf8_encode($respond);
             $loJsonCustomer = json_decode($respond);
-            if (isset($loJsonCustomer->{'id'})) {
-                $lnIdCustomer = $loJsonCustomer->{'id'};
+            if (isset($loJsonCustomer->{'customerId'})) {
+                $lnIdCustomer = $loJsonCustomer->{'customerId'};
             } 
             else {
-                if (isset($loJsonCustomer->{'errorMessage'})) {
-                    $lcError = $loJsonCustomer->{'errorMessage'};
+                if (isset($loJsonCustomer->{'message'})) {
+                    $lcError = $loJsonCustomer->{'message'};
                     $lnIdCustomer = $lcError;
-                    $lnErrorNumber = $loJsonCustomer->{'errorNumber'};
-                    if ($lnErrorNumber >= 1001 || $lnErrorNumber <=1002) {
+                    $lnErrorNumber = $loJsonCustomer->{'status'};
+                    if ($lnErrorNumber == 401) {
+                    } else {
                     }
-    				else {
-    				}
                 }
             }
         }
@@ -1334,7 +1401,7 @@ function setAllStocksFromErp() {
     $loReturn = new StdClass;
     $loReturn->status = false;
     $loReturn->statusMessage = '';
-    $lcToken = getTokenAPI();
+    $lcToken = getNewAPIToken();
     if ($lcToken == 'voidMainData') {
         $loReturn->statusMessage = 'Guarde primero los credenciales de acceso a la API'; 
         return $loReturn;
@@ -1346,13 +1413,13 @@ function setAllStocksFromErp() {
     }
 
     $tcWarehouseId = '';
-    $connection = curl_init('https://erp.laudus.cl/api/products/get/list/stock'.$tcWarehouseId);
+    $connection = curl_init('https://api.laudus.cl/production/products/stock'.$tcWarehouseId);
     curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
     curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "GET");                                                                     
     curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);                                                                      
     curl_setopt($connection, CURLOPT_HTTPHEADER, array(                                                                          
         'Content-Type: application/json',
-        'token: '.$lcToken)      
+        'Authorization: '.$lcToken)      
     );                                                                                                                   
 
     $respond = curl_exec($connection);
@@ -1372,7 +1439,7 @@ function setAllStocksFromErp() {
             $lnIdProduct = 0;
             foreach ($loJsonStocks as $productStock) {
                 $lnVan++;
-                $lcThisCode = $productStock->{'code'};
+                $lcThisCode = $productStock->{'sku'};
                 $lnThisStock = $productStock->{'stock'};
                 if (strlen($lcThisCode) > 0) {
                     $lnIdProduct = wc_get_product_id_by_sku($lcThisCode);
@@ -1640,20 +1707,20 @@ function getProductListAjax() {
 	
 	$productCodeFromErp = [];
 
-	$lcToken = getTokenAPI();
+	$lcToken = getNewAPIToken();
 	if ($lcToken == 'voidMainData') {
 		$message = 'No se pudo identificar en Laudus';
 	} else if (substr($lcToken, 0, 2) == '-1') {
 		$message = substr($lcToken, 2);
 	} else {
-		$connection = curl_init('https://erp.laudus.cl/api/products/get/list');
+		$connection = curl_init('https://api.laudus.cl/production/products/list');
 		curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
 		curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "GET");                                                                     
 		curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);                                                                      
 		curl_setopt($connection, CURLOPT_HTTPHEADER, array(                                                                          
 			'Content-Type: application/json',
 			'Accept: application/json',
-			'token: '.$lcToken)      
+			'Authorization: '.$lcToken)      
 		);                                                                                                                   
 
 		$respond = curl_exec($connection);
@@ -1675,7 +1742,7 @@ function getProductListAjax() {
 				refreshLastTokenDate();
 				
 				foreach($loProductList as $loProduct) {
-					$code = $loProduct['code'];
+					$code = $loProduct['sku'];
 					$productCodeFromErp[] = $code;
 				}
 				
@@ -1800,20 +1867,20 @@ function getProductStockListAjax() {
 	$productCodeFromErp = [];
 	$productStockFromErp = [];
 
-	$lcToken = getTokenAPI();
+	$lcToken = getNewAPIToken();
 	if ($lcToken == 'voidMainData') {
 		$message = 'No se pudo identificar en Laudus';
 	} else if (substr($lcToken, 0, 2) == '-1') {
 		$message = substr($lcToken, 2);
 	} else {
-		$connection = curl_init('https://erp.laudus.cl/api/products/get/list/stock');
+		$connection = curl_init('https://api.laudus.cl/production/products/stock');
 		curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
 		curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "GET");                                                                     
 		curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);                                                                      
 		curl_setopt($connection, CURLOPT_HTTPHEADER, array(                                                                          
-			'Content-Type: application/json',
-			'Accept: application/json',
-			'token: '.$lcToken)      
+                    'Accept: application/json',
+                    'Content-Type: application/json',  
+                    'Authorization: '.$lcToken)     
 		);                                                                                                                   
 
 		$respond = curl_exec($connection);
@@ -1822,21 +1889,21 @@ function getProductStockListAjax() {
 			$respond = utf8_encode($respond);
 			$loProductList = json_decode($respond, true);
 
-			if (isset($loProductList['errorMessage'])) {
-				$lnErrorNumber = $loJsonTerms['errorNumber'];
-				if ($lnErrorNumber >= 1001 || $lnErrorNumber <=1002) {
+			if (isset($loProductList['type']) && $loProductList['type'] == 'error') {
+				$lnErrorNumber = $loProductList['status'];
+				if ($lnErrorNumber == 401) {
 					cleanTokenInfo();
 				} else {
 					refreshLastTokenDate();
 				}
-				$message = $loProductList['errorMessage'];
+				$message = $loProductList['message'];
 			} 
 			else {
 				$status = true;
 				refreshLastTokenDate();
 				
-				foreach($loProductList as $loProduct) {
-					$code = $loProduct['code'];
+				foreach($loProductList['products'] as $loProduct) {
+					$code = $loProduct['sku'];
 					$productCodeFromErp[] = $code;
 					$productStockFromErp[$code] = $loProduct['stock'];
 				}
@@ -1967,20 +2034,25 @@ function getProductPriceListAjax() {
 	$productPriceFromErp = [];
         $productPriceNoTaxFromErp = [];
 
-	$lcToken = getTokenAPI();
+	$lcToken = getNewAPIToken();
 	if ($lcToken == 'voidMainData') {
 		$message = 'No se pudo identificar en Laudus';
 	} else if (substr($lcToken, 0, 2) == '-1') {
 		$message = substr($lcToken, 2);
 	} else {
-		$connection = curl_init('https://erp.laudus.cl/api/products/get/list');
-		curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
-		curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "GET");                                                                     
+		$data = [];
+                $data['fields'] = ['sku', 'unitPrice', 'unitPriceWithTaxes'];
+                $lcBodyJson = json_encode($data);
+
+                $connection = curl_init('https://api.laudus.cl/production/products/list');
+                curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, false);                                                                 
+                curl_setopt($connection, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
+                curl_setopt($connection, CURLOPT_POSTFIELDS, $lcBodyJson);                                                                       
 		curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);                                                                      
 		curl_setopt($connection, CURLOPT_HTTPHEADER, array(                                                                          
-			'Content-Type: application/json',
-			'Accept: application/json',
-			'token: '.$lcToken)      
+                    'Accept: application/json',
+                    'Content-Type: application/json',  
+                    'Authorization: '.$lcToken)     
 		);                                                                                                                   
 
 		$respond = curl_exec($connection);
@@ -1989,21 +2061,21 @@ function getProductPriceListAjax() {
 			$respond = utf8_encode($respond);
 			$loProductList = json_decode($respond, true);
 
-			if (isset($loProductList['errorMessage'])) {
-				$lnErrorNumber = $loJsonTerms['errorNumber'];
-				if ($lnErrorNumber >= 1001 || $lnErrorNumber <=1002) {
+			if (isset($loProductList['type']) && $loProductList['type'] == 'error') {
+				$lnErrorNumber = $loProductList['status'];
+				if ($lnErrorNumber == 401) {
 					cleanTokenInfo();
 				} else {
 					refreshLastTokenDate();
 				}
-				$message = $loProductList['errorMessage'];
+				$message = $loProductList['message'];
 			} 
 			else {
 				$status = true;
 				refreshLastTokenDate();
 				
 				foreach($loProductList as $loProduct) {
-					$code = $loProduct['code'];
+					$code = $loProduct['sku'];
 					$productCodeFromErp[] = $code;
 					$productPriceFromErp[$code] = laudusRoundPrice($loProduct['unitPriceWithTaxes']);
                                         $productPriceNoTaxFromErp[$code] = laudusRoundPrice($loProduct['unitPrice']);
@@ -2278,10 +2350,10 @@ function renderListSimpleHeaderStocks($productCollection) {
                                                 echo __('No en Laudus', 'laudus');
                                             } else if ($product['product_woo_stock'] === 'No Procesable') {
                                                 echo __('No Procesable', 'laudus');
-                                            } else if ($product['product_woo_stock_attr'] === 'No Procesable') {
-                                                echo __('No Procesable', 'laudus');
                                             } else if (isset($product['product_woo_stock_attr'])) {
-                                                if ($product['product_woo_stock_attr'] == $product['product_erp_stock']) {
+                                                if ($product['product_woo_stock_attr'] === 'No Procesable') {
+                                                    echo __('No Procesable', 'laudus');
+                                                } else if ($product['product_woo_stock_attr'] == $product['product_erp_stock']) {
                                                     echo 'Stocks coinciden';
                                                 } else {
                                                 ?>
@@ -2448,11 +2520,11 @@ function renderListSimpleHeaderPrices($productCollection) {
                                                 echo __('No en Laudus', 'laudus');
                                             } else if ($product['product_woo_price'] === 'No Procesable') {
                                                 echo __('No Procesable', 'laudus');
-                                            } else if ($product['product_woo_price_attr'] === 'No Procesable') {
-                                                echo __('No Procesable', 'laudus');
                                             } else if (isset($product['product_woo_price_attr'])) {
                                                 if ($product['product_woo_price_attr'] == $product['product_erp_price']) {
                                                     echo 'Precios coinciden';
+                                                } else if ($product['product_woo_price_attr'] === 'No Procesable') {
+                                                    echo __('No Procesable', 'laudus');
                                                 } else {
                                                 ?>
                                                     <a 
@@ -2503,7 +2575,7 @@ function refreshLastTokenDate() {
 	update_option('laudus_token_lastdate', $ldNowDate->format('c'));	
 }
 function cleanTokenInfo() {
-	update_option('laudus_token', '');
+    update_option('laudus_token', '');
     update_option('laudus_token_lastdate', '');	
 }
 
@@ -2617,6 +2689,7 @@ function laudus_admin_add_order_invoice_column_content( $column, $post_id  ) {
                 $display_invoice_link = true;
             }
         }
+        $html = '';
         if ($display_invoice_link) {
             $html = '<p class="view-invoice"><a target="_blank"  href="'.$laudus_invoice_generate_url.'&order_id='.$post_id.'" class="button invoice">View Invoice</a></p>';
         }
@@ -2629,7 +2702,7 @@ function laudusUpgradeAjax() {
     if ($current_version == '1.1.6') {
         laudus_upgrade_118(); 
     }
-    update_option('laudus_current_schema_version', '1.1.8');
+    update_option('laudus_current_schema_version', '2.1.0');
     $status = 1;
     echo $status;
     exit;
@@ -2782,6 +2855,7 @@ function preparePdf($order_id) {
         );                    
 
         $respond = curl_exec($connection);
+        
         //parse respond and catch errorMessage if there is no token
         $lcError = '';
         if (strlen($respond) > 0) {
@@ -2795,13 +2869,13 @@ function preparePdf($order_id) {
             } 
             else {
                 //Error handler
-                if (isset($loJsonInvoice[0]['errorMessage'])) {
-                    $lcError = $loJsonInvoice[0]['errorMessage'];
+                if (isset($loJsonInvoice[0]['message'])) {
+                    $lcError = $loJsonInvoice[0]['message'];
                     throw new \Exception($lcError);
                 } 
             }
         } else {
-            throw new \Exception(curl_error($connection)); 
+            throw new \Exception($pdfGenerateErrorMessage); 
         }
     } catch (\Exception $ex) {
         $result['message'] = 'Error: '.$ex->getMessage();
